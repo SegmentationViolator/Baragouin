@@ -35,20 +35,20 @@ public class Tokenizer {
             }
         }
 
-        if (Character.isLetter(this.currentCodePoint)) {
+        if (Character.isAlphabetic(this.currentCodePoint)) {
             var tokenBuilder = new StringBuilder();
 
             tokenBuilder.appendCodePoint(this.currentCodePoint);
             nextCodePoint();
 
-            while (this.currentCodePoint != null && Character.isLetter(this.currentCodePoint)) {
+            while (this.currentCodePoint != null && Character.isAlphabetic(this.currentCodePoint)) {
                 tokenBuilder.appendCodePoint(this.currentCodePoint);
                 nextCodePoint();
             }
 
             return tokenBuilder.toString();
         }
-        
+
         if (Character.isDigit(this.currentCodePoint)) {
             var tokenBuilder = new StringBuilder();
 

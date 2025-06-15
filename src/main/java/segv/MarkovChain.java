@@ -17,7 +17,8 @@ public class MarkovChain {
         String lastToken = tokenizer.nextToken();
         String token = tokenizer.nextToken();
 
-        if (lastToken == null) return;
+        if (lastToken == null)
+            return;
 
         addToken(lastToken);
 
