@@ -41,7 +41,7 @@ public class Tokenizer {
             tokenBuilder.appendCodePoint(this.currentCodePoint);
             nextCodePoint();
 
-            while (this.currentCodePoint != null && Character.isAlphabetic(this.currentCodePoint)) {
+            while (this.currentCodePoint != null && (Character.isAlphabetic(this.currentCodePoint) || Character.getType(this.currentCodePoint) == Character.NON_SPACING_MARK)) {
                 tokenBuilder.appendCodePoint(this.currentCodePoint);
                 nextCodePoint();
             }
