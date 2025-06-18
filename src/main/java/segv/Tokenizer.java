@@ -4,9 +4,11 @@ import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 
 public class Tokenizer {
-    PrimitiveIterator.OfInt source;
-    Integer currentCodePoint = null;
-    Integer lastCodePoint;
+    public final static String NULL_TOKEN = "";
+
+    private PrimitiveIterator.OfInt source;
+    private Integer currentCodePoint = null;
+    private Integer lastCodePoint;
 
     public Tokenizer(String text) {
         this.source = text.codePoints().iterator();
@@ -25,13 +27,13 @@ public class Tokenizer {
 
     public String nextToken() {
         if (this.currentCodePoint == null)
-            return null;
+            return NULL_TOKEN;
 
         if (Character.isWhitespace(this.currentCodePoint) || Character.isISOControl(this.currentCodePoint)) {
             while (Character.isWhitespace(this.currentCodePoint) || Character.isISOControl(this.currentCodePoint)) {
                 nextCodePoint();
                 if (this.currentCodePoint == null)
-                    return null;
+                    return NULL_TOKEN;
             }
         }
 
@@ -41,7 +43,8 @@ public class Tokenizer {
             tokenBuilder.appendCodePoint(this.currentCodePoint);
             nextCodePoint();
 
-            while (this.currentCodePoint != null && (Character.isAlphabetic(this.currentCodePoint) || Character.getType(this.currentCodePoint) == Character.NON_SPACING_MARK)) {
+            while (this.currentCodePoint != null && (Character.isAlphabetic(this.currentCodePoint)
+                    || Character.getType(this.currentCodePoint) == Character.NON_SPACING_MARK)) {
                 tokenBuilder.appendCodePoint(this.currentCodePoint);
                 nextCodePoint();
             }

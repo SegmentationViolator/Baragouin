@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MarkovChain {
-    List<String> tokens;
-    List<RootTransition> rootTransitions;
+    public List<String> tokens;
+    public List<RootTransition> rootTransitions;
 
     public MarkovChain() {
         this.tokens = new ArrayList<String>();
@@ -17,16 +17,18 @@ public class MarkovChain {
         String lastToken = tokenizer.nextToken();
         String token = tokenizer.nextToken();
 
-        if (lastToken == null)
+        if (lastToken == Tokenizer.NULL_TOKEN)
             return;
 
         addToken(lastToken);
 
-        while (token != null) {
+        while (token != Tokenizer.NULL_TOKEN) {
             addToken(lastToken, token);
             lastToken = token;
             token = tokenizer.nextToken();
         }
+
+        addToken(lastToken, token);
     }
 
     private void addToken(String token) {
@@ -37,11 +39,10 @@ public class MarkovChain {
     }
 
     private void addToken(String lastToken, String token) {
-        int tokenIndex = getTokenIndex(token);
         int lastTokenIndex = getTokenIndex(lastToken);
 
         RootTransition rootTransition = this.rootTransitions.get(lastTokenIndex);
-        int transitionIndex = getTransitionIndex(rootTransition.otherTransitions, tokenIndex);
+        int transitionIndex = getTransitionIndex(rootTransition.otherTransitions, token);
 
         Transition transition = rootTransition.otherTransitions.get(transitionIndex);
         transition.frequency++;
@@ -49,9 +50,17 @@ public class MarkovChain {
 
     private int getTokenIndex(String token) {
         int tokenIndex = -1;
+        int tokenCount = this.tokens.size();
+
+        if (tokenCount == 0) {
+            this.tokens.add(0, token);
+            this.rootTransitions.add(0, new RootTransition());
+
+            return 0;
+        }
 
         int start = 0;
-        int end = this.tokens.size() - 1;
+        int end = tokenCount - 1;
         loop: while (start <= end) {
             int pivot = start + ((end - start) / 2);
             int difference = Integer.signum(token.compareTo(this.tokens.get(pivot)));
@@ -70,7 +79,7 @@ public class MarkovChain {
         }
 
         if (tokenIndex == -1) {
-            int difference = token.compareTo(this.tokens.get(start));
+            int difference = (start < tokenCount) ? token.compareTo(this.tokens.get(start)) : 0;
             tokenIndex = (difference > 0) ? (start + 1) : start;
 
             this.tokens.add(tokenIndex, token);
@@ -80,14 +89,20 @@ public class MarkovChain {
         return tokenIndex;
     }
 
-    private int getTransitionIndex(List<Transition> transitions, int tokenIndex) {
+    private int getTransitionIndex(List<Transition> transitions, String token) {
         int transitionIndex = -1;
+        int transitionCount = transitions.size();
+
+        if (transitionCount == 0) {
+            transitions.add(0, new Transition(token));
+            return 0;
+        }
 
         int start = 0;
-        int end = transitions.size() - 1;
+        int end = transitionCount - 1;
         loop: while (start <= end) {
             int pivot = start + ((end - start) / 2);
-            int difference = Integer.signum(tokenIndex - transitions.get(pivot).tokenIndex);
+            int difference = Integer.signum(token.compareTo(transitions.get(pivot).token));
 
             switch (difference) {
                 case -1:
@@ -103,10 +118,10 @@ public class MarkovChain {
         }
 
         if (transitionIndex == -1) {
-            int difference = tokenIndex - transitions.get(start).tokenIndex;
+            int difference = (start < transitionCount) ? token.compareTo(transitions.get(start).token) : -1;
             transitionIndex = (difference > 0) ? (start + 1) : start;
 
-            transitions.add(transitionIndex, new Transition(tokenIndex));
+            transitions.add(transitionIndex, new Transition(token));
         }
 
         return transitionIndex;
@@ -114,8 +129,8 @@ public class MarkovChain {
 }
 
 class RootTransition {
-    int frequency;
-    List<Transition> otherTransitions;
+    public int frequency;
+    public List<Transition> otherTransitions;
 
     public RootTransition() {
         this.frequency = 0;
@@ -124,11 +139,11 @@ class RootTransition {
 }
 
 class Transition {
-    int frequency;
-    int tokenIndex;
+    public int frequency;
+    public String token;
 
-    public Transition(int tokenIndex) {
+    public Transition(String token) {
         this.frequency = 0;
-        this.tokenIndex = tokenIndex;
+        this.token = token;
     }
 }
